@@ -73,6 +73,8 @@ architecture behaviour of CHORDEncoder is
             end if;
         end function;
     
+    
+    
 begin
     process(clk)
     variable i:integer :=0;
@@ -82,17 +84,19 @@ begin
     variable in_array : IntegerArray(0 to 31);
 
     begin
-        if a /= "00000000" then
+        if a /= "00000000" and a/= "UUUUUUUU" then
             if rising_edge(clk) then
                 if a = "00011111" then
                     in_array(i-1) := (in_array(i-1) + 1) mod 12;
                 else
+            
+                    
                     in_array(i) := binarytoindex(input_seq => a);
                     i := i + 1;
                 end if;
             end if;
         
-        else
+        elsif a = "00000000" then
             if rising_edge(clk) then
                 if j >= i then
                     data_valid <= '0';
@@ -135,8 +139,15 @@ begin
                             j := j + 1;
                         end if;
                     else
-                        z <= indextoBinary(index => in_array(j));
-                        j := j + 1;
+                        report "j is " & integer'image(j);
+                        report "i is " & integer'image(i);
+                        if(j = i) then
+                            data_valid <= '0';
+                            z <= "UUUUUUUU";
+                        else
+                            z <= indextoBinary(index => in_array(j));
+                            j := j + 1;
+                        end if;
                     end if;
                 end if;
             end if;
